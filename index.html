@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real-Time Bus Tracker</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 500px; width: 100%; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { margin-bottom: 10px; }
+    #locateBtn {
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Real-Time Bus Tracker</h1>
+
+<!-- Button to find user location -->
+<button id="locateBtn">Find My Location</button>
+<p>Nearest Stop: <span id="nearestName">-</span></p>
+
+<!-- Map container -->
+<div id="map" style="height: 500px;"></div>
+
+<!-- Active buses list -->
+<h2>Active Buses:</h2>
+<ul id="buses"></ul>
+
+<!-- ETA list -->
+<h2>Estimated Arrival Times (ETA)</h2>
+<ul id="etaList"></ul>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<!-- Your JS -->
+<script src="script.js"></script>
+
+</body>
+</html>
