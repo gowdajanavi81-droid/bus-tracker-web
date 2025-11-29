@@ -17,7 +17,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19
 }).addTo(map);
 
-// ===== Store markers and polylines =====
+// ===== Store markers =====
 const busMarkers = {};
 const routeLines = {};
 
@@ -57,29 +57,31 @@ busesRef.on('value', snapshot => {
     // Create marker
     const marker = L.marker([bus.lat, bus.lng]).addTo(map);
 
-    // Bind popup
+    // ===== UPDATED POPUP (ETA ADDED HERE) =====
     marker.bindPopup(`
       <b>${busId}</b><br>
       Seats: ${bus.seatsAvailable}<br>
       Location: ${bus.lat.toFixed(5)}, ${bus.lng.toFixed(5)}<br>
-      Next Stop: ${getNextStopName(bus)}
+      Next Stop: ${getNextStopName(bus)}<br>
+      ETA: ${bus.eta || "-"}
     `);
 
     // Zoom to bus on click
     marker.on('click', () => map.setView([bus.lat, bus.lng], 15));
 
     busMarkers[busId] = marker;
-
-    
   });
 
-  // Update bus list in HTML
+  // ===== Update bus list in HTML =====
   const ul = document.getElementById('buses');
   ul.innerHTML = '';
   Object.keys(buses).forEach(busId => {
     const b = buses[busId];
     const li = document.createElement('li');
-    li.innerHTML = `<b>${busId}</b> — Seats: ${b.seatsAvailable} — Lat:${b.lat.toFixed(4)} Lng:${b.lng.toFixed(4)} — Next Stop: ${getNextStopName(b)}`;
+
+    // ===== UPDATED BUS LIST (ETA ADDED HERE) =====
+    li.innerHTML = `<b>${busId}</b> — Seats: ${b.seatsAvailable} — Lat:${b.lat.toFixed(4)} Lng:${b.lng.toFixed(4)} — Next Stop: ${getNextStopName(b)} — ETA: ${b.eta || "-"}`;
+
     ul.appendChild(li);
   });
 });
@@ -118,9 +120,11 @@ document.getElementById('locateBtn').addEventListener('click', () => {
       const stops = snapshot.val();
       let nearestStop = null;
       let minDist = Infinity;
+
       Object.keys(stops).forEach(stopId => {
         const stop = stops[stopId];
         const dist = getDistance(userLat, userLng, stop.lat, stop.lng);
+
         if (dist < minDist) {
           minDist = dist;
           nearestStop = stop;
@@ -143,14 +147,20 @@ function getDistance(lat1, lon1, lat2, lon2) {
 // ===== Get next stop dynamically =====
 function getNextStopName(bus) {
   if (!bus.route || bus.route.length === 0) return "-";
+
   for (let i = 0; i < bus.route.length; i++) {
-    if (Math.abs(bus.lat - bus.route[i].lat) < 0.0005 && Math.abs(bus.lng - bus.route[i].lng) < 0.0005) {
+    if (
+      Math.abs(bus.lat - bus.route[i].lat) < 0.0005 &&
+      Math.abs(bus.lng - bus.route[i].lng) < 0.0005
+    ) {
       return bus.route[i + 1] ? bus.route[i + 1].name : "End of route";
     }
   }
-  // Closest stop if between points
+
+  // If between stops
   let closest = bus.route[0];
   let minDist = Math.sqrt(Math.pow(bus.lat - closest.lat, 2) + Math.pow(bus.lng - closest.lng, 2));
+
   for (let i = 1; i < bus.route.length; i++) {
     let dist = Math.sqrt(Math.pow(bus.lat - bus.route[i].lat, 2) + Math.pow(bus.lng - bus.route[i].lng, 2));
     if (dist < minDist) {
@@ -158,5 +168,6 @@ function getNextStopName(bus) {
       closest = bus.route[i];
     }
   }
+
   return closest.name;
 }
